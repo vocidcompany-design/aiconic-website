@@ -1,55 +1,55 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Loader2 } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { Paperclip, ArrowUp } from "lucide-react";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const FALLBACK_DELAY = 9000; // ms before showing offline message
+
+const QA_PAIRS = [
+  {
+    question: "What services do you offer?",
+    answer:
+      "AIconic produces AI-powered cinematic videos, premium image campaigns, and strategic visual positioning systems — built specifically for real estate developers who want to elevate perceived value and accelerate sales decisions.",
+  },
+  {
+    question: "How does AI video production work?",
+    answer:
+      "We combine AI generation tools with cinematic direction to produce developer-grade visual content — architectural reveals, lifestyle narratives, and brand films — in a fraction of traditional production time and cost.",
+  },
+  {
+    question: "What projects have you worked on?",
+    answer:
+      "Our work includes campaigns for premium residential developments in Georgia, including Tempo District in Batumi and Lisi Trio in Tbilisi — projects where visual perception directly influenced buyer decisions.",
+  },
+  {
+    question: "How much does it cost?",
+    answer:
+      "Pricing is project-based and depends on scope. Most developer campaigns start from $1,000. Contact us at contact@aiconic.ge for a tailored proposal.",
+  },
+  {
+    question: "How do we get started?",
+    answer:
+      "Send us a message here or email contact@aiconic.ge. We typically respond within 24 hours and begin with a short discovery call to understand your project.",
+  },
+];
 
 type Message = {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "operator";
   content: string;
 };
 
-const SUGGESTIONS = [
-  "What services do you offer?",
-  "How does AI video production work?",
-  "Tell me about your past projects.",
-];
-
-// Static reply map — no external API needed
-function getReply(input: string): string {
-  const q = input.toLowerCase();
-  if (q.match(/video|film|cinematic|production/))
-    return "Our AI Video Production service combines generative visuals with human creative direction — we produce cinematic property films and brand reels that position your development as a landmark. Every frame is intentional.";
-  if (q.match(/brand|campaign|identity|logo|visual/))
-    return "We build full visual brand systems — from hero imagery to social assets. Our Cinematic Brand Campaigns align every touchpoint with a single powerful narrative designed to command premium perception.";
-  if (q.match(/tempo|lisi|project|work|portfolio|past/))
-    return "Our work includes Tempo District (full visual brand campaign and launch film for a landmark Tbilisi mixed-use development) and Lisi Trio (strategic positioning and AI-enhanced campaign for three premium towers overlooking Lisi Lake).";
-  if (q.match(/price|cost|fee|budget|rate|how much/))
-    return "Every project is scoped individually based on your development's scale and objectives. Reach out at contact@aiconic.ge with details and we'll prepare a tailored proposal within 24 hours.";
-  if (q.match(/georgia|tbilisi|market|local/))
-    return "We're Georgia-native. We know Tbilisi's luxury real estate landscape, its buyers' expectations, and the aesthetic language that resonates. That market-specific insight is baked into every campaign we produce.";
-  if (q.match(/ai|artificial intelligence|technology|how/))
-    return "We use AI at every stage — from concept development and visual rendering to color grading and asset variation. The result is premium output at a pace traditional production can't match, without sacrificing craft.";
-  if (q.match(/contact|email|reach|talk|meet|call/))
-    return "You can reach our team directly at contact@aiconic.ge. We respond to every serious inquiry within 24 hours. Alternatively, use the contact form below to send us a brief.";
-  if (q.match(/positioning|strategy|perception/))
-    return "Strategic Visual Positioning is our most consultative service — we analyze your market, your competitors, and your buyers, then design a visual identity system that occupies a distinct and aspirational place in the minds of premium buyers.";
-  return "That's a great question for a direct conversation. Our team can walk you through exactly how we approach your specific project type. Email us at contact@aiconic.ge or fill out the brief below — we'll be in touch quickly.";
-}
-
-function TypingIndicator() {
+function TypingDots() {
   return (
-    <div className="flex items-center gap-1 px-4 py-3">
+    <div className="flex items-center gap-1.5 px-1 py-2">
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-[#C8C8C8]"
-          animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+          className="w-1.5 h-1.5 rounded-full bg-[#555]"
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+          transition={{ duration: 1, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
         />
       ))}
     </div>
@@ -57,168 +57,260 @@ function TypingIndicator() {
 }
 
 export function VercelV0Chat({
-  heading = "Let's Talk About Your Brand.",
-  placeholder = "Ask us anything about your project...",
+  placeholder = "Ask us anything about AIconic...",
 }: {
-  heading?: string;
   placeholder?: string;
 }) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "0",
-      role: "assistant",
-      content:
-        "Hello. I'm here to answer questions about AIconic — our services, approach, and past work. What would you like to know?",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [typing, setTyping] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fallbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const listenerRegistered = useRef(false);
+
+  // Scroll to bottom whenever messages or typing state changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typing]);
+
+  // Register Crisp message:received listener once
+  const registerListener = useCallback(() => {
+    if (listenerRegistered.current) return;
+    listenerRegistered.current = true;
+
+    window.$crisp.push([
+      "on",
+      "message:received",
+      (data: { type: string; content: string }) => {
+        if (data.type !== "text") return;
+
+        // Cancel fallback timer
+        if (fallbackTimer.current) {
+          clearTimeout(fallbackTimer.current);
+          fallbackTimer.current = null;
+        }
+
+        setTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: "operator",
+            content: data.content,
+          },
+        ]);
+      },
+    ]);
+  }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
-
-  const send = (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || loading) return;
-
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: trimmed,
+    // Crisp may already be on window (script loaded), or still queued
+    if (typeof window !== "undefined" && window.$crisp) {
+      registerListener();
+    }
+    return () => {
+      if (fallbackTimer.current) clearTimeout(fallbackTimer.current);
     };
+  }, [registerListener]);
 
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+  // Chip click: answer immediately from hardcoded map, no Crisp needed
+  const sendChip = useCallback(
+    (question: string, answer: string) => {
+      if (typing) return;
+      const ts = Date.now();
+      setMessages((prev) => [
+        ...prev,
+        { id: String(ts), role: "user", content: question },
+      ]);
+      setTyping(true);
+      setTimeout(() => {
+        setTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          { id: String(ts + 1), role: "operator", content: answer },
+        ]);
+      }, 700 + Math.random() * 400);
+    },
+    [typing]
+  );
 
-    // Simulate response delay
-    setTimeout(
-      () => {
-        const reply: Message = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: getReply(trimmed),
-        };
-        setMessages((prev) => [...prev, reply]);
-        setLoading(false);
-      },
-      900 + Math.random() * 600
-    );
-  };
+  // Free-form input: route through live Crisp session
+  const send = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || typing) return;
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+      registerListener();
+
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), role: "user", content: trimmed },
+      ]);
+      setInput("");
+      setTyping(true);
+
+      window.$crisp.push(["do", "message:send", ["text", trimmed]]);
+
+      fallbackTimer.current = setTimeout(() => {
+        setTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: "operator",
+            content:
+              "Thanks for reaching out. Our team will get back to you shortly — you can also email us directly at contact@aiconic.ge.",
+          },
+        ]);
+      }, FALLBACK_DELAY);
+    },
+    [typing, registerListener]
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       send(input);
     }
   };
 
+  const hasMessages = messages.length > 0;
+
   return (
-    <div className="flex flex-col w-full max-w-2xl mx-auto h-full">
-      {/* Message list */}
-      <div className="flex-1 overflow-y-auto px-1 py-4 space-y-4 scrollbar-thin">
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: EASE }}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              {msg.role === "assistant" && (
-                <div className="w-6 h-6 rounded-full border border-[rgba(200,200,200,0.2)] flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+    <div className="flex flex-col w-full items-center gap-5">
+      {/* ── Message history ── */}
+      <div
+        className={`w-full max-w-2xl transition-all duration-500 ${
+          hasMessages || typing ? "opacity-100" : "opacity-0 pointer-events-none h-0"
+        }`}
+      >
+        <div
+          className="flex flex-col gap-4 max-h-[360px] overflow-y-auto pr-1 pb-2"
+          style={{ scrollbarWidth: "none" }}
+        >
+          <AnimatePresence initial={false}>
+            {messages.map((msg) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: EASE }}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                {msg.role === "operator" && (
+                  <div className="w-6 h-6 rounded-full border border-[rgba(200,200,200,0.18)] flex items-center justify-center mr-2.5 mt-0.5 flex-shrink-0">
+                    <span
+                      className="text-[8px] text-[#C8C8C8]"
+                      style={{ fontFamily: "var(--font-playfair), serif" }}
+                    >
+                      A
+                    </span>
+                  </div>
+                )}
+                <p
+                  className={`text-sm leading-relaxed font-light max-w-[80%] ${
+                    msg.role === "user"
+                      ? "text-[#F5F0E8] bg-[rgba(200,200,200,0.07)] border border-[rgba(200,200,200,0.1)] px-4 py-3 rounded-2xl rounded-tr-sm"
+                      : "text-[#9a9a8e] pt-1"
+                  }`}
+                >
+                  {msg.content}
+                </p>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {/* Typing indicator */}
+          <AnimatePresence>
+            {typing && (
+              <motion.div
+                key="typing"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.25 }}
+                className="flex justify-start"
+              >
+                <div className="w-6 h-6 rounded-full border border-[rgba(200,200,200,0.18)] flex items-center justify-center mr-2.5 mt-0.5 flex-shrink-0">
                   <span
-                    className="text-[8px] text-[#C8C8C8] tracking-wider"
+                    className="text-[8px] text-[#C8C8C8]"
                     style={{ fontFamily: "var(--font-playfair), serif" }}
                   >
                     A
                   </span>
                 </div>
-              )}
-              <div
-                className={`max-w-[80%] text-sm leading-relaxed font-light ${
-                  msg.role === "user"
-                    ? "text-[#F5F0E8] bg-[rgba(200,200,200,0.07)] border border-[rgba(200,200,200,0.1)] px-4 py-3"
-                    : "text-[#9a9a8e]"
-                }`}
-              >
-                {msg.content}
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                <TypingDots />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Divider before input */}
+        {(hasMessages || typing) && (
+          <div className="w-full h-px bg-[rgba(200,200,200,0.06)] mt-4 mb-1" />
+        )}
+      </div>
+
+      {/* ── Input ── */}
+      <div className="w-full max-w-2xl">
+        <div className="flex items-center gap-3 bg-[#111111] border border-[rgba(255,255,255,0.08)] rounded-2xl px-4 py-3 focus-within:border-[rgba(255,255,255,0.18)] transition-colors duration-300">
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Attach file"
+            className="text-[#444] hover:text-[#888] transition-colors duration-200 flex-shrink-0"
           >
-            <div className="w-6 h-6 rounded-full border border-[rgba(200,200,200,0.2)] flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-              <span
-                className="text-[8px] text-[#C8C8C8] tracking-wider"
-                style={{ fontFamily: "var(--font-playfair), serif" }}
+            <Paperclip size={17} />
+          </button>
+
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            className="flex-1 bg-transparent text-[#F5F0E8] text-sm font-light placeholder:text-[#383838] outline-none"
+          />
+
+          <button
+            onClick={() => send(input)}
+            disabled={!input.trim() || typing}
+            aria-label="Send"
+            className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:bg-[#E8E8E8] disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200"
+          >
+            <ArrowUp size={14} className="text-[#080808]" strokeWidth={2.5} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Suggestion chips ── */}
+      <AnimatePresence>
+        {!hasMessages && (
+          <motion.div
+            key="chips"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4, transition: { duration: 0.2 } }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="flex flex-wrap justify-center gap-2 w-full max-w-2xl"
+          >
+            {QA_PAIRS.map(({ question, answer }) => (
+              <button
+                key={question}
+                onClick={() => sendChip(question, answer)}
+                disabled={typing}
+                className="text-[11px] text-[#6B6A5E] tracking-[0.12em] border border-[rgba(200,200,200,0.1)] rounded-full px-4 py-2 hover:border-[rgba(200,200,200,0.3)] hover:text-[#C8C8C8] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 font-light text-left"
               >
-                A
-              </span>
-            </div>
-            <TypingIndicator />
+                {question}
+              </button>
+            ))}
           </motion.div>
         )}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Suggestion chips */}
-      {messages.length === 1 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-wrap gap-2 px-1 pb-4"
-        >
-          {SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              onClick={() => send(s)}
-              className="text-[10px] tracking-[0.15em] uppercase text-[#6B6A5E] border border-[rgba(200,200,200,0.1)] px-3 py-2 hover:border-[rgba(200,200,200,0.3)] hover:text-[#C8C8C8] transition-all duration-300 font-light"
-            >
-              {s}
-            </button>
-          ))}
-        </motion.div>
-      )}
-
-      {/* Input row */}
-      <div className="relative border-t border-[rgba(200,200,200,0.1)] pt-4">
-        <Textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          rows={3}
-          className="pr-14 bg-[rgba(200,200,200,0.03)] border-[rgba(200,200,200,0.12)] focus-visible:border-[rgba(200,200,200,0.3)] text-[#F5F0E8]"
-        />
-        <button
-          onClick={() => send(input)}
-          disabled={!input.trim() || loading}
-          className="absolute right-3 bottom-3 w-8 h-8 flex items-center justify-center border border-[rgba(200,200,200,0.2)] text-[#C8C8C8] hover:bg-[#C8C8C8] hover:text-[#080808] disabled:opacity-25 disabled:cursor-not-allowed transition-all duration-300"
-          aria-label="Send message"
-        >
-          {loading ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Send size={14} />
-          )}
-        </button>
-        <p className="mt-2 text-[10px] text-[#3a3a3a] tracking-wider">
-          Press Enter to send · Shift+Enter for new line
-        </p>
-      </div>
+      </AnimatePresence>
     </div>
   );
 }

@@ -2,14 +2,20 @@
 
 import { motion } from "framer-motion";
 import { VercelV0Chat } from "@/components/ui/v0-ai-chat";
+import { BackgroundCellCore } from "@/components/ui/background-cell-animation";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export default function AiChat() {
   return (
-    <section className="relative py-32 md:py-40 px-6 bg-[#080808]">
+    <section className="relative py-32 md:py-48 px-6 bg-[#080808] overflow-hidden">
+      {/* Background cell grid — fills section, sits behind everything */}
+      <BackgroundCellCore />
+      {/* All content above the cell grid */}
+      <div className="relative z-50">
+
       {/* Top separator */}
-      <div className="max-w-6xl mx-auto mb-20">
+      <div className="max-w-4xl mx-auto mb-20">
         <motion.div
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
@@ -19,62 +25,41 @@ export default function AiChat() {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-start">
-          {/* Left: heading */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: EASE }}
-            className="md:sticky md:top-32"
+      <div className="max-w-4xl mx-auto flex flex-col items-center text-center gap-12">
+        {/* Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: EASE }}
+          className="flex flex-col items-center gap-4"
+        >
+          <p className="text-[#C8C8C8] text-xs tracking-[0.4em] uppercase font-light">
+            Ask Anything
+          </p>
+          <h2
+            className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-[#F5F0E8]"
+            style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 700 }}
           >
-            <p className="text-[#C8C8C8] text-xs tracking-[0.4em] uppercase mb-6 font-light">
-              Quick Answers
-            </p>
-            <h2
-              className="text-[clamp(2rem,4vw,3.8rem)] leading-[1.08] tracking-tight text-[#F5F0E8] mb-8"
-              style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 700 }}
-            >
-              Let&apos;s Talk About
-              <br />
-              Your Brand.
-            </h2>
-            <p className="text-[#6B6A5E] text-sm leading-relaxed font-light max-w-xs">
-              Ask us anything — our services, past projects, how AI video
-              production works, or how we approach your market.
-            </p>
+            What can we build
+            <br />
+            for you?
+          </h2>
+        </motion.div>
 
-            <div className="mt-12 flex flex-col gap-3">
-              {["AI Video Production", "Brand Campaigns", "Visual Positioning"].map(
-                (item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <div className="w-4 h-px bg-[rgba(200,200,200,0.3)]" />
-                    <span className="text-[#6B6A5E] text-xs tracking-[0.2em] uppercase font-light">
-                      {item}
-                    </span>
-                  </div>
-                )
-              )}
-            </div>
-          </motion.div>
-
-          {/* Right: chat */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.2, ease: EASE }}
-            className="border border-[rgba(200,200,200,0.08)] bg-[#0b0b0b] p-6 md:p-8 flex flex-col"
-            style={{ minHeight: 520 }}
-          >
-            <VercelV0Chat
-              heading="Let's Talk About Your Brand."
-              placeholder="Ask us anything about your project..."
-            />
-          </motion.div>
-        </div>
+        {/* Chat interface */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
+          className="w-full"
+        >
+          <VercelV0Chat placeholder="Ask us anything about AIconic..." />
+        </motion.div>
       </div>
+
+      </div>{/* end z-50 wrapper */}
     </section>
   );
 }
