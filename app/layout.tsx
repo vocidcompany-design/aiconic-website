@@ -38,6 +38,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${playfair.variable} h-full`}
     >
+      {/* Runs synchronously before paint — prevents browser scroll restoration */}
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `if(history.scrollRestoration)history.scrollRestoration='manual';window.scrollTo(0,0);` }} />
+      </head>
       <body className="min-h-full antialiased">
         <ScrollToTop />
         <CrispChat />
