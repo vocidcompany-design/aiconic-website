@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #080808;
+  --color-foreground: #F5F0E8;
+  --color-gold: #C8C8C8;
+  --color-gold-light: #E8E8E8;
+  --color-gold-dim: rgba(200, 200, 200, 0.15);
+  --color-muted: #6B6A5E;
+  --color-surface: #111110;
+  --color-border: rgba(200, 200, 200, 0.2);
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-geist-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #080808;
+  color: #F5F0E8;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(200, 200, 200, 0.3);
+  color: #F5F0E8;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 200, 200, 0.3);
+}
+
+/* Spline suspense fallback spinner */
+.loader {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(200, 200, 200, 0.15);
+  border-top-color: rgba(200, 200, 200, 0.6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
