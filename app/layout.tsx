@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { Playfair_Display } from "next/font/google";
 import ScrollToTop from "@/components/ScrollToTop";
 import CrispChat from "@/components/CrispChat";
+import LeftBeam from "@/components/LeftBeam";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -45,6 +46,7 @@ export default function RootLayout({
       <body className="min-h-full antialiased">
         <ScrollToTop />
         <CrispChat />
+        <LeftBeam />
         {children}
       </body>
     </html>
