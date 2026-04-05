@@ -111,7 +111,7 @@ export default function Hero() {
           <button
             onClick={() => setTheme(nextTheme)}
             className="text-[10px] tracking-widest uppercase font-light px-3 py-1 rounded-full border transition-colors duration-300"
-            style={{ color: t.contact, borderColor: t.navBorder }}
+            style={{ color: "var(--text-secondary)", borderColor: "var(--border)" }}
           >
             {themeLabels[nextTheme]}
           </button>
