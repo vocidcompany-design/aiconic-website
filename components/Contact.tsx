@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
+import { useLang } from "@/src/context/LanguageContext";
+import { en } from "@/src/messages/en";
+import { ka } from "@/src/messages/ka";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -52,9 +55,7 @@ function Field({
       >
         <input
           className="w-full bg-transparent text-sm font-light py-3 px-0 outline-none transition-colors duration-300"
-          style={{
-            color: "var(--text-primary)",
-          }}
+          style={{ color: "var(--text-primary)" }}
           type={type}
           name={name}
           required={required}
@@ -121,6 +122,9 @@ export default function Contact() {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [sent, setSent] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const { lang } = useLang();
+  const t = lang === "ka" ? ka : en;
+  const georgianHeading = lang === "ka" ? { fontFamily: '"BPG Nino Mtavruli", sans-serif', fontWeight: 700 } : {};
 
   const set = (key: keyof FormState) => (val: string) =>
     setForm((prev) => ({ ...prev, [key]: val }));
@@ -190,7 +194,7 @@ export default function Contact() {
               className="text-xs tracking-[0.4em] uppercase mb-6"
               style={{ color: "var(--accent)" }}
             >
-              Get In Touch
+              {t.contact.label}
             </p>
             <h2
               className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-tight mb-8"
@@ -198,18 +202,18 @@ export default function Contact() {
                 fontFamily: "var(--font-playfair), serif",
                 fontWeight: 700,
                 color: "var(--text-primary)",
+                ...georgianHeading,
               }}
             >
-              Ready to elevate
+              {t.contact.heading1}
               <br />
-              your brand?
+              {t.contact.heading2}
             </h2>
             <p
               className="text-sm leading-relaxed font-light max-w-sm mb-12"
               style={{ color: "var(--text-secondary)" }}
             >
-              Tell us about your project. We respond to every serious inquiry
-              within 24 hours.
+              {t.contact.sub}
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
@@ -222,15 +226,13 @@ export default function Contact() {
                   className="text-xs tracking-widest transition-colors duration-300"
                   style={{ color: "var(--text-secondary)" }}
                   onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLAnchorElement).style.color =
-                      "var(--accent)")
+                    ((e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)")
                   }
                   onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLAnchorElement).style.color =
-                      "var(--text-secondary)")
+                    ((e.currentTarget as HTMLAnchorElement).style.color = "var(--text-secondary)")
                   }
                 >
-                  contact@aiconic.ge
+                  {t.contact.email}
                 </a>
               </div>
             </div>
@@ -260,30 +262,29 @@ export default function Contact() {
                     fontFamily: "var(--font-playfair), serif",
                     fontWeight: 600,
                     color: "var(--text-primary)",
+                    ...georgianHeading,
                   }}
                 >
-                  Message sent.
+                  {t.contact.sent}
                 </p>
                 <p
                   className="text-sm font-light leading-relaxed"
                   style={{ color: "var(--text-secondary)" }}
                 >
-                  Your email client should open. We&apos;ll be in touch shortly.
+                  {t.contact.sentSub}
                 </p>
                 <button
                   onClick={() => setSent(false)}
                   className="mt-10 text-[10px] tracking-[0.3em] uppercase transition-colors duration-300 text-left"
                   style={{ color: "var(--accent)" }}
                   onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.color =
-                      "var(--text-primary)")
+                    ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-primary)")
                   }
                   onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.color =
-                      "var(--accent)")
+                    ((e.currentTarget as HTMLButtonElement).style.color = "var(--accent)")
                   }
                 >
-                  Send another →
+                  {t.contact.sendAnother}
                 </button>
               </motion.div>
             ) : (
@@ -294,37 +295,37 @@ export default function Contact() {
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <Field
-                    label="Full Name"
+                    label={t.contact.fields.name}
                     name="name"
                     required
                     value={form.name}
                     onChange={set("name")}
-                    placeholder="Your name"
+                    placeholder={t.contact.placeholders.name}
                   />
                   <Field
-                    label="Company"
+                    label={t.contact.fields.company}
                     name="company"
                     required
                     value={form.company}
                     onChange={set("company")}
-                    placeholder="Your company"
+                    placeholder={t.contact.placeholders.company}
                   />
                 </div>
                 <Field
-                  label="Email"
+                  label={t.contact.fields.email}
                   name="email"
                   type="email"
                   required
                   value={form.email}
                   onChange={set("email")}
-                  placeholder="you@company.com"
+                  placeholder={t.contact.placeholders.email}
                 />
                 <TextAreaField
-                  label="Message (optional)"
+                  label={t.contact.fields.message}
                   name="message"
                   value={form.message}
                   onChange={set("message")}
-                  placeholder="Tell us about your project..."
+                  placeholder={t.contact.placeholders.message}
                 />
 
                 <div className="pt-2">
@@ -336,19 +337,15 @@ export default function Contact() {
                       color: "var(--accent)",
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background =
-                        "var(--accent)";
-                      (e.currentTarget as HTMLButtonElement).style.color =
-                        "var(--bg)";
+                      (e.currentTarget as HTMLButtonElement).style.background = "var(--accent)";
+                      (e.currentTarget as HTMLButtonElement).style.color = "var(--bg)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background =
-                        "transparent";
-                      (e.currentTarget as HTMLButtonElement).style.color =
-                        "var(--accent)";
+                      (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                      (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
                     }}
                   >
-                    <span className="relative z-10">Send Inquiry</span>
+                    <span className="relative z-10">{t.contact.submit}</span>
                     <span className="relative z-10 inline-block transition-transform duration-300 group-hover:translate-x-1">
                       →
                     </span>
@@ -383,13 +380,13 @@ export default function Contact() {
             className="text-xs tracking-wider"
             style={{ color: "var(--text-secondary)" }}
           >
-            © {new Date().getFullYear()} AIconic. AI-powered visual marketing.
+            © {new Date().getFullYear()} AIconic. {t.footer.copy}
           </p>
           <p
             className="text-xs tracking-wider"
             style={{ color: "var(--text-secondary)" }}
           >
-            Georgia
+            {t.footer.location}
           </p>
         </div>
       </motion.footer>

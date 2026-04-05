@@ -1,25 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLang } from "@/src/context/LanguageContext";
+import { en } from "@/src/messages/en";
+import { ka } from "@/src/messages/ka";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const statements = [
-  {
-    label: "AI + Craft",
-    body: "We combine generative AI with human creative direction to produce visuals that feel impossible — and yet utterly real.",
-  },
-  {
-    label: "Market-Specific",
-    body: "Georgia's luxury real estate market has a distinct character. We know its buyers, its aesthetics, and its expectations.",
-  },
-  {
-    label: "Results-Driven",
-    body: "Every visual decision is tied to a strategic outcome — faster sales cycles, higher perceived value, stronger brand equity.",
-  },
-];
-
 export default function WhyAIconic() {
+  const { lang } = useLang();
+  const t = lang === "ka" ? ka : en;
+  const georgianHeading = lang === "ka" ? { fontFamily: '"BPG Nino Mtavruli", sans-serif', fontWeight: 700 } : {};
+
   return (
     <section className="relative py-32 md:py-48 px-6 overflow-hidden transition-colors duration-700" style={{ background: "var(--bg)" }}>
       {/* Background texture */}
@@ -42,7 +34,7 @@ export default function WhyAIconic() {
             className="text-xs tracking-[0.4em] uppercase mb-10"
             style={{ color: "var(--accent)" }}
           >
-            Why AIconic
+            {t.whyAIconic.label}
           </motion.p>
 
           <motion.div
@@ -57,22 +49,28 @@ export default function WhyAIconic() {
                 fontFamily: "var(--font-playfair), serif",
                 fontWeight: 800,
                 color: "var(--text-primary)",
+                ...georgianHeading,
               }}
             >
-              We don&apos;t create content.
+              {t.whyAIconic.heading1}
             </h2>
             <h2
               className="text-[clamp(2rem,6vw,5.5rem)] leading-[1.0] tracking-tight"
-              style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 800, color: "var(--accent)" }}
+              style={{
+                fontFamily: "var(--font-playfair), serif",
+                fontWeight: 800,
+                color: "var(--accent)",
+                ...georgianHeading,
+              }}
             >
-              We engineer perception.
+              {t.whyAIconic.heading2}
             </h2>
           </motion.div>
         </div>
 
         {/* Supporting statements */}
         <div className="grid md:grid-cols-3 gap-12 md:gap-16">
-          {statements.map((s, i) => (
+          {t.whyAIconic.statements.map((s, i) => (
             <motion.div
               key={s.label}
               initial={{ opacity: 0, y: 40 }}

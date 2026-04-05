@@ -1,37 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLang } from "@/src/context/LanguageContext";
+import { en } from "@/src/messages/en";
+import { ka } from "@/src/messages/ka";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const projects = [
-  {
-    client: "Tempo District",
-    category: "Mixed-Use Development",
-    description:
-      "Full visual brand campaign encompassing cinematic launch film, digital identity, and pre-sales marketing suite for a landmark mixed-use development in Batumi.",
-    stat: "Pre-sale campaign",
-    stat2: "Launch identity",
-  },
-  {
-    client: "Lisi Trio",
-    category: "Luxury Residential",
-    description:
-      "Strategic visual positioning and AI-enhanced campaign for three premium residential towers overlooking Lisi Lake — establishing a new benchmark for luxury living in Georgia.",
-    stat: "3 towers",
-    stat2: "Premium tier",
-  },
-  {
-    client: "CityZen",
-    category: "Premium Residential",
-    description:
-      "Visual identity and AI-powered campaign for one of Tbilisi's most distinguished premium residential complexes — redefining urban luxury living in the Georgian capital.",
-    stat: "Premium tier",
-    stat2: "Tbilisi",
-  },
-];
-
 export default function Results() {
+  const { lang } = useLang();
+  const t = lang === "ka" ? ka : en;
+  const georgianHeading = lang === "ka" ? { fontFamily: '"BPG Nino Mtavruli", sans-serif', fontWeight: 700 } : {};
+
   return (
     <section
       className="relative py-32 md:py-40 px-6 transition-colors duration-700"
@@ -62,7 +42,7 @@ export default function Results() {
             className="text-xs tracking-[0.4em] uppercase mb-4"
             style={{ color: "var(--accent)" }}
           >
-            Selected Work
+            {t.results.label}
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -74,15 +54,16 @@ export default function Results() {
               fontFamily: "var(--font-playfair), serif",
               fontWeight: 700,
               color: "var(--text-primary)",
+              ...georgianHeading,
             }}
           >
-            Brands we&apos;ve elevated.
+            {t.results.heading}
           </motion.h2>
         </div>
 
         <div style={{ background: "var(--bg)" }}>
         <div className="space-y-px" style={{ border: "1px solid var(--border)" }}>
-          {projects.map((project, i) => (
+          {t.results.projects.map((project, i) => (
             <motion.div
               key={project.client}
               initial={{ opacity: 0, y: 40 }}
@@ -120,6 +101,7 @@ export default function Results() {
                     fontFamily: "var(--font-playfair), serif",
                     fontWeight: 600,
                     color: "var(--text-primary)",
+                    ...georgianHeading,
                   }}
                 >
                   {project.client}

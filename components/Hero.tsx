@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
 import { useTheme, Theme } from "@/src/context/ThemeContext";
+import { useLang } from "@/src/context/LanguageContext";
+import { en } from "@/src/messages/en";
+import { ka } from "@/src/messages/ka";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -76,8 +79,11 @@ const themeLabels: Record<Theme, string> = {
 
 export default function Hero() {
   const { theme, setTheme } = useTheme();
+  const { lang, setLang } = useLang();
   const t = themes[theme];
+  const t2 = lang === "ka" ? ka : en;
   const nextTheme = themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
+  const georgianFont = lang === "ka" ? { fontFamily: '"BPG Nino Mtavruli", sans-serif', fontWeight: 700, letterSpacing: "0.05em" } : {};
 
   return (
     <section
@@ -109,6 +115,13 @@ export default function Hero() {
 
         <div className="flex items-center gap-6">
           <button
+            onClick={() => setLang(lang === "en" ? "ka" : "en")}
+            className="text-[11px] tracking-[0.25em] uppercase font-light transition-colors duration-300"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {lang === "en" ? "KA" : "EN"}
+          </button>
+          <button
             onClick={() => setTheme(nextTheme)}
             className="text-[10px] tracking-widest uppercase font-light px-3 py-1 rounded-full border transition-colors duration-300"
             style={{ color: "var(--text-secondary)", borderColor: "var(--border)" }}
@@ -118,9 +131,9 @@ export default function Hero() {
           <a
             href="#contact"
             className="text-xs tracking-[0.2em] uppercase transition-colors duration-300"
-            style={{ color: t.contact }}
+            style={{ color: t.contact, ...georgianFont }}
           >
-            Contact
+            {t2.nav.contact}
           </a>
         </div>
       </motion.nav>
@@ -132,9 +145,9 @@ export default function Hero() {
           <motion.p
             {...fadeUp(0.3)}
             className="text-xs md:text-sm tracking-[0.4em] uppercase mb-8 font-light transition-colors duration-700"
-            style={{ color: t.label }}
+            style={{ color: t.label, ...georgianFont }}
           >
-            AI-Powered Visual Marketing · Georgia
+            {t2.hero.label}
           </motion.p>
 
           <motion.h1
@@ -142,34 +155,34 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.55, ease: EASE }}
             className="text-[clamp(2.4rem,5.5vw,6rem)] leading-[1.05] tracking-tight mb-8 transition-colors duration-700"
-            style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 700, color: t.heading }}
+            style={{ fontFamily: lang === "ka" ? '"BPG Nino Mtavruli", sans-serif' : "var(--font-playfair), serif", fontWeight: 700, color: t.heading }}
           >
-            Premium
+            {t2.hero.heading1}
             <br />
-            Developers
+            {t2.hero.heading2}
             <br />
-            Deserve
+            {t2.hero.heading3}
             <br />
             <span style={{ color: t.gradientFrom }}>
-              Premium
+              {t2.hero.heading4}
               <br />
-              Perception
+              {t2.hero.heading5}
             </span>
           </motion.h1>
 
           <motion.p
             {...fadeUp(0.9)}
             className="text-base md:text-lg max-w-sm mb-12 leading-relaxed font-light tracking-wide transition-colors duration-700"
-            style={{ color: t.sub }}
+            style={{ color: t.sub, ...georgianFont }}
           >
-            AI-powered visual marketing for Georgia&apos;s leading real estate brands
+            {t2.hero.sub}
           </motion.p>
 
           <motion.div {...fadeUp(1.15)}>
             <a
               href="#work"
               className="group inline-flex items-center gap-4 px-10 py-4 text-xs tracking-[0.3em] uppercase transition-all duration-500 font-light border"
-              style={{ borderColor: t.btnBorder, color: t.btnText }}
+              style={{ borderColor: t.btnBorder, color: t.btnText, ...georgianFont }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLAnchorElement).style.background = t.btnHoverBg;
                 (e.currentTarget as HTMLAnchorElement).style.color = t.btnHoverText;
@@ -179,7 +192,7 @@ export default function Hero() {
                 (e.currentTarget as HTMLAnchorElement).style.color = t.btnText;
               }}
             >
-              See Our Work
+              {t2.hero.cta}
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>
@@ -220,7 +233,7 @@ export default function Hero() {
           className="text-[10px] tracking-[0.3em] uppercase transition-colors duration-700"
           style={{ color: t.scrollText }}
         >
-          Scroll
+          {t2.hero.scroll}
         </span>
         <motion.div
           className="w-px h-10 bg-gradient-to-b from-[#C8C8C8] to-transparent"

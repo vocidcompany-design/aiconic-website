@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Playfair_Display } from "next/font/google";
+import { Noto_Sans_Georgian } from "next/font/google";
 import ScrollToTop from "@/components/ScrollToTop";
 import CrispChat from "@/components/CrispChat";
 import LeftBeam from "@/components/LeftBeam";
 import { ThemeProvider } from "@/src/context/ThemeContext";
 import ThemeWrapper from "@/components/ThemeWrapper";
+import { LanguageProvider } from "@/src/context/LanguageContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +19,12 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+const notoGeorgian = Noto_Sans_Georgian({
+  variable: "--font-georgian",
+  subsets: ["georgian"],
+  weight: ["300", "400"],
 });
 
 export const metadata: Metadata = {
@@ -39,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${playfair.variable} h-full`}
+      className={`${geistSans.variable} ${playfair.variable} ${notoGeorgian.variable} h-full`}
     >
       <head>
         <script
@@ -49,14 +57,16 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full antialiased">
-        <ThemeProvider>
-          <ThemeWrapper>
-            <ScrollToTop />
-            <CrispChat />
-            <LeftBeam />
-            {children}
-          </ThemeWrapper>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <ThemeWrapper>
+              <ScrollToTop />
+              <CrispChat />
+              <LeftBeam />
+              {children}
+            </ThemeWrapper>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
