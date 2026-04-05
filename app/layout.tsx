@@ -4,6 +4,8 @@ import { Playfair_Display } from "next/font/google";
 import ScrollToTop from "@/components/ScrollToTop";
 import CrispChat from "@/components/CrispChat";
 import LeftBeam from "@/components/LeftBeam";
+import { ThemeProvider } from "@/src/context/ThemeContext";
+import ThemeWrapper from "@/components/ThemeWrapper";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,15 +41,22 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${playfair.variable} h-full`}
     >
-      {/* Runs synchronously before paint — prevents browser scroll restoration */}
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `if(history.scrollRestoration)history.scrollRestoration='manual';window.scrollTo(0,0);` }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if(history.scrollRestoration)history.scrollRestoration='manual';window.scrollTo(0,0);`,
+          }}
+        />
       </head>
       <body className="min-h-full antialiased">
-        <ScrollToTop />
-        <CrispChat />
-        <LeftBeam />
-        {children}
+        <ThemeProvider>
+          <ThemeWrapper>
+            <ScrollToTop />
+            <CrispChat />
+            <LeftBeam />
+            {children}
+          </ThemeWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

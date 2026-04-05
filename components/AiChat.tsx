@@ -2,15 +2,18 @@
 
 import { motion } from "framer-motion";
 import { VercelV0Chat } from "@/components/ui/v0-ai-chat";
-import { BackgroundCellCore } from "@/components/ui/background-cell-animation";
+// import { BackgroundCellCore } from "@/components/ui/background-cell-animation";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export default function AiChat() {
   return (
-    <section className="relative py-32 md:py-48 px-6 bg-[#080808] overflow-hidden">
+    <section
+      className="relative py-32 md:py-48 px-6 overflow-hidden transition-colors duration-700"
+      style={{ background: "var(--bg)" }}
+    >
       {/* Background cell grid — fills section, sits behind everything */}
-      <BackgroundCellCore />
+      {/* <BackgroundCellCore /> */}
       {/* All content above the cell grid */}
       <div className="relative z-50">
 
@@ -21,7 +24,11 @@ export default function AiChat() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, ease: EASE }}
-          className="h-px bg-gradient-to-r from-transparent via-[rgba(200,200,200,0.35)] to-transparent origin-left"
+          className="h-px origin-left"
+          style={{
+            background:
+              "linear-gradient(to right, transparent, var(--accent), transparent)",
+          }}
         />
       </div>
 
@@ -34,12 +41,19 @@ export default function AiChat() {
           transition={{ duration: 1, ease: EASE }}
           className="flex flex-col items-center gap-4"
         >
-          <p className="text-[#C8C8C8] text-xs tracking-[0.4em] uppercase font-light">
+          <p
+            className="text-xs tracking-[0.4em] uppercase font-light"
+            style={{ color: "var(--accent)" }}
+          >
             Ask Anything
           </p>
           <h2
-            className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-[#F5F0E8]"
-            style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 700 }}
+            className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-tight"
+            style={{
+              fontFamily: "var(--font-playfair), serif",
+              fontWeight: 700,
+              color: "var(--text-primary)",
+            }}
           >
             What can we build
             <br />

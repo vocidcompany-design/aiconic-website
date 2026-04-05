@@ -47,7 +47,8 @@ function TypingDots() {
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-[#555]"
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ background: "var(--text-secondary)" }}
           animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
           transition={{ duration: 1, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
         />
@@ -199,24 +200,40 @@ export function VercelV0Chat({
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {msg.role === "operator" && (
-                  <div className="w-6 h-6 rounded-full border border-[rgba(200,200,200,0.18)] flex items-center justify-center mr-2.5 mt-0.5 flex-shrink-0">
+                  <div
+                    className="w-6 h-6 rounded-full border flex items-center justify-center mr-2.5 mt-0.5 flex-shrink-0"
+                    style={{ borderColor: "var(--border)" }}
+                  >
                     <span
-                      className="text-[8px] text-[#C8C8C8]"
-                      style={{ fontFamily: "var(--font-playfair), serif" }}
+                      className="text-[8px]"
+                      style={{
+                        fontFamily: "var(--font-playfair), serif",
+                        color: "var(--accent)",
+                      }}
                     >
                       A
                     </span>
                   </div>
                 )}
-                <p
-                  className={`text-sm leading-relaxed font-light max-w-[80%] ${
-                    msg.role === "user"
-                      ? "text-[#F5F0E8] bg-[rgba(200,200,200,0.07)] border border-[rgba(200,200,200,0.1)] px-4 py-3 rounded-2xl rounded-tr-sm"
-                      : "text-[#9a9a8e] pt-1"
-                  }`}
-                >
-                  {msg.content}
-                </p>
+                {msg.role === "user" ? (
+                  <p
+                    className="text-sm leading-relaxed font-light max-w-[80%] px-4 py-3 rounded-2xl rounded-tr-sm border"
+                    style={{
+                      color: "var(--text-primary)",
+                      background: "var(--border)",
+                      borderColor: "var(--border)",
+                    }}
+                  >
+                    {msg.content}
+                  </p>
+                ) : (
+                  <p
+                    className="text-sm leading-relaxed font-light max-w-[80%] pt-1"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {msg.content}
+                  </p>
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
@@ -232,10 +249,16 @@ export function VercelV0Chat({
                 transition={{ duration: 0.25 }}
                 className="flex justify-start"
               >
-                <div className="w-6 h-6 rounded-full border border-[rgba(200,200,200,0.18)] flex items-center justify-center mr-2.5 mt-0.5 flex-shrink-0">
+                <div
+                  className="w-6 h-6 rounded-full border flex items-center justify-center mr-2.5 mt-0.5 flex-shrink-0"
+                  style={{ borderColor: "var(--border)" }}
+                >
                   <span
-                    className="text-[8px] text-[#C8C8C8]"
-                    style={{ fontFamily: "var(--font-playfair), serif" }}
+                    className="text-[8px]"
+                    style={{
+                      fontFamily: "var(--font-playfair), serif",
+                      color: "var(--accent)",
+                    }}
                   >
                     A
                   </span>
@@ -250,13 +273,16 @@ export function VercelV0Chat({
 
         {/* Divider before input */}
         {(hasMessages || typing) && (
-          <div className="w-full h-px bg-[rgba(200,200,200,0.06)] mt-4 mb-1" />
+          <div className="w-full h-px mt-4 mb-1" style={{ background: "var(--border)" }} />
         )}
       </div>
 
       {/* ── Input ── */}
       <div className="w-full max-w-2xl">
-        <div className="flex items-center gap-3 bg-[#111111] border border-[rgba(255,255,255,0.08)] rounded-2xl px-4 py-3 focus-within:border-[rgba(255,255,255,0.18)] transition-colors duration-300">
+        <div
+          className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors duration-300"
+          style={{ background: "var(--bg)", border: "1px solid var(--border)" }}
+        >
           <button
             type="button"
             tabIndex={-1}
@@ -273,7 +299,8 @@ export function VercelV0Chat({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="flex-1 bg-transparent text-[#F5F0E8] text-sm font-light placeholder:text-[#383838] outline-none"
+            className="flex-1 bg-transparent text-sm font-light outline-none"
+            style={{ color: "var(--text-primary)" }}
           />
 
           <button
@@ -282,7 +309,7 @@ export function VercelV0Chat({
             aria-label="Send"
             className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:bg-[#E8E8E8] disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200"
           >
-            <ArrowUp size={14} className="text-[#080808]" strokeWidth={2.5} />
+            <ArrowUp size={14} style={{ color: "#080808" }} strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -303,7 +330,16 @@ export function VercelV0Chat({
                 key={question}
                 onClick={() => sendChip(question, answer)}
                 disabled={typing}
-                className="text-[11px] text-[#6B6A5E] tracking-[0.12em] border border-[rgba(200,200,200,0.1)] rounded-full px-4 py-2 hover:border-[rgba(200,200,200,0.3)] hover:text-[#C8C8C8] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 font-light text-left"
+                className="text-[11px] tracking-[0.12em] rounded-full px-4 py-2 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 font-light text-left border"
+                style={{ color: "var(--text-secondary)", borderColor: "var(--border)" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
+                }}
               >
                 {question}
               </button>

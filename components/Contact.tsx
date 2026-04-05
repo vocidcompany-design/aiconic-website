@@ -32,21 +32,29 @@ function Field({
   placeholder?: string;
 }) {
   const [focused, setFocused] = useState(false);
-  const base =
-    "w-full bg-transparent text-[#F5F0E8] text-sm font-light py-3 px-0 outline-none placeholder:text-[#2e2e2e] transition-colors duration-300";
-  const border = focused
-    ? "border-b border-[rgba(200,200,200,0.5)]"
-    : "border-b border-[rgba(200,200,200,0.15)]";
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[#C8C8C8] text-[10px] tracking-[0.35em] uppercase font-light">
+      <label
+        className="text-[10px] tracking-[0.35em] uppercase font-light"
+        style={{ color: "var(--accent)" }}
+      >
         {label}
-        {required && <span className="text-[#888] ml-1">*</span>}
+        {required && <span className="ml-1" style={{ color: "var(--text-secondary)" }}>*</span>}
       </label>
-      <div className={border}>
+      <div
+        className="border-b transition-colors duration-300"
+        style={{
+          borderColor: focused
+            ? "color-mix(in srgb, var(--accent) 50%, transparent)"
+            : "color-mix(in srgb, var(--accent) 15%, transparent)",
+        }}
+      >
         <input
-          className={base}
+          className="w-full bg-transparent text-sm font-light py-3 px-0 outline-none transition-colors duration-300"
+          style={{
+            color: "var(--text-primary)",
+          }}
           type={type}
           name={name}
           required={required}
@@ -76,20 +84,26 @@ function TextAreaField({
   placeholder?: string;
 }) {
   const [focused, setFocused] = useState(false);
-  const base =
-    "w-full bg-transparent text-[#F5F0E8] text-sm font-light py-3 px-0 outline-none resize-none placeholder:text-[#2e2e2e] transition-colors duration-300";
-  const border = focused
-    ? "border-b border-[rgba(200,200,200,0.5)]"
-    : "border-b border-[rgba(200,200,200,0.15)]";
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[#C8C8C8] text-[10px] tracking-[0.35em] uppercase font-light">
+      <label
+        className="text-[10px] tracking-[0.35em] uppercase font-light"
+        style={{ color: "var(--accent)" }}
+      >
         {label}
       </label>
-      <div className={border}>
+      <div
+        className="border-b transition-colors duration-300"
+        style={{
+          borderColor: focused
+            ? "color-mix(in srgb, var(--accent) 50%, transparent)"
+            : "color-mix(in srgb, var(--accent) 15%, transparent)",
+        }}
+      >
         <textarea
-          className={base}
+          className="w-full bg-transparent text-sm font-light py-3 px-0 outline-none resize-none transition-colors duration-300"
+          style={{ color: "var(--text-primary)" }}
           name={name}
           rows={4}
           value={value}
@@ -111,22 +125,35 @@ export default function Contact() {
   const set = (key: keyof FormState) => (val: string) =>
     setForm((prev) => ({ ...prev, [key]: val }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = encodeURIComponent(
-      `New inquiry — ${form.company || form.name}`
-    );
-    const body = encodeURIComponent(
-      `Full Name: ${form.name}\nCompany: ${form.company}\nEmail: ${form.email}\n\n${form.message ? `Message:\n${form.message}` : ""}`
-    );
-    window.location.href = `mailto:contact@aiconic.ge?subject=${subject}&body=${body}`;
-    setSent(true);
-    setForm(INITIAL);
+    try {
+      const res = await fetch("https://formspree.io/f/mdappjvn", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          company: form.company,
+          email: form.email,
+          message: form.message,
+        }),
+      });
+      if (res.ok) {
+        setSent(true);
+        setForm(INITIAL);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <section className="relative py-32 md:py-48 px-6 overflow-hidden bg-[#080808]">
-      {/* Subtle silver glow */}
+    <section
+      id="contact"
+      className="relative py-32 md:py-48 px-6 overflow-hidden transition-colors duration-700"
+      style={{ background: "var(--bg)" }}
+    >
+      {/* Subtle glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -142,7 +169,11 @@ export default function Contact() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, ease: EASE }}
-          className="h-px bg-gradient-to-r from-transparent via-[rgba(200,200,200,0.35)] to-transparent origin-left"
+          className="h-px origin-left"
+          style={{
+            background:
+              "linear-gradient(to right, transparent, var(--accent), transparent)",
+          }}
         />
       </div>
 
@@ -155,27 +186,49 @@ export default function Contact() {
             viewport={{ once: true }}
             transition={{ duration: 1, ease: EASE }}
           >
-            <p className="text-[#C8C8C8] text-xs tracking-[0.4em] uppercase mb-6">
+            <p
+              className="text-xs tracking-[0.4em] uppercase mb-6"
+              style={{ color: "var(--accent)" }}
+            >
               Get In Touch
             </p>
             <h2
-              className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-[#F5F0E8] mb-8"
-              style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 700 }}
+              className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-tight mb-8"
+              style={{
+                fontFamily: "var(--font-playfair), serif",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
             >
               Ready to elevate
               <br />
               your brand?
             </h2>
-            <p className="text-[#6B6A5E] text-sm leading-relaxed font-light max-w-sm mb-12">
+            <p
+              className="text-sm leading-relaxed font-light max-w-sm mb-12"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Tell us about your project. We respond to every serious inquiry
               within 24 hours.
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-px bg-[#C8C8C8] opacity-40" />
+                <div
+                  className="w-4 h-px opacity-40"
+                  style={{ background: "var(--accent)" }}
+                />
                 <a
                   href="mailto:contact@aiconic.ge"
-                  className="text-[#6B6A5E] text-xs tracking-widest hover:text-[#C8C8C8] transition-colors duration-300"
+                  className="text-xs tracking-widest transition-colors duration-300"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLAnchorElement).style.color =
+                      "var(--accent)")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLAnchorElement).style.color =
+                      "var(--text-secondary)")
+                  }
                 >
                   contact@aiconic.ge
                 </a>
@@ -197,19 +250,38 @@ export default function Contact() {
                 transition={{ duration: 0.8 }}
                 className="flex flex-col justify-center min-h-[340px]"
               >
-                <div className="w-10 h-px bg-[#C8C8C8] mb-8" />
+                <div
+                  className="w-10 h-px mb-8"
+                  style={{ background: "var(--accent)" }}
+                />
                 <p
-                  className="text-[#F5F0E8] text-3xl mb-4 leading-tight"
-                  style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 600 }}
+                  className="text-3xl mb-4 leading-tight"
+                  style={{
+                    fontFamily: "var(--font-playfair), serif",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
                 >
                   Message sent.
                 </p>
-                <p className="text-[#6B6A5E] text-sm font-light leading-relaxed">
+                <p
+                  className="text-sm font-light leading-relaxed"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Your email client should open. We&apos;ll be in touch shortly.
                 </p>
                 <button
                   onClick={() => setSent(false)}
-                  className="mt-10 text-[#C8C8C8] text-[10px] tracking-[0.3em] uppercase hover:text-[#F5F0E8] transition-colors duration-300 text-left"
+                  className="mt-10 text-[10px] tracking-[0.3em] uppercase transition-colors duration-300 text-left"
+                  style={{ color: "var(--accent)" }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.color =
+                      "var(--text-primary)")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.color =
+                      "var(--accent)")
+                  }
                 >
                   Send another →
                 </button>
@@ -258,7 +330,23 @@ export default function Contact() {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="group relative inline-flex items-center gap-4 px-10 py-4 border border-[#C8C8C8] text-[#C8C8C8] text-xs tracking-[0.3em] uppercase font-light hover:bg-[#C8C8C8] hover:text-[#080808] transition-all duration-500 overflow-hidden"
+                    className="group relative inline-flex items-center gap-4 px-10 py-4 border text-xs tracking-[0.3em] uppercase font-light transition-all duration-500 overflow-hidden"
+                    style={{
+                      borderColor: "var(--accent)",
+                      color: "var(--accent)",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        "var(--accent)";
+                      (e.currentTarget as HTMLButtonElement).style.color =
+                        "var(--bg)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        "transparent";
+                      (e.currentTarget as HTMLButtonElement).style.color =
+                        "var(--accent)";
+                    }}
                   >
                     <span className="relative z-10">Send Inquiry</span>
                     <span className="relative z-10 inline-block transition-transform duration-300 group-hover:translate-x-1">
@@ -280,18 +368,29 @@ export default function Contact() {
         transition={{ duration: 1, delay: 0.4 }}
         className="relative max-w-6xl mx-auto mt-32 pt-8"
       >
-        <div className="h-px bg-[rgba(200,200,200,0.08)] mb-8" />
+        <div className="h-px mb-8" style={{ background: "var(--border)" }} />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <span
-            className="text-[#C8C8C8] tracking-[0.25em] uppercase text-sm font-light"
-            style={{ fontFamily: "var(--font-playfair), serif" }}
+            className="tracking-[0.25em] uppercase text-sm font-light"
+            style={{
+              fontFamily: "var(--font-playfair), serif",
+              color: "var(--accent)",
+            }}
           >
             AIconic
           </span>
-          <p className="text-[#6B6A5E] text-xs tracking-wider">
+          <p
+            className="text-xs tracking-wider"
+            style={{ color: "var(--text-secondary)" }}
+          >
             © {new Date().getFullYear()} AIconic. AI-powered visual marketing.
           </p>
-          <p className="text-[#6B6A5E] text-xs tracking-wider">Georgia</p>
+          <p
+            className="text-xs tracking-wider"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Georgia
+          </p>
         </div>
       </motion.footer>
     </section>

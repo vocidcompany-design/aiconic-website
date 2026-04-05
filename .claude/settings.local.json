@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Read(//c/Users/Ako/AppData/Local/Temp/claude/C--Users-Ako-Documents-aiconic-website/b725e133-a7bd-4dd6-8781-d3ad3ac99eaa/tasks/**)",
+      "Bash(clip)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

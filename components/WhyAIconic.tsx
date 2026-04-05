@@ -21,7 +21,7 @@ const statements = [
 
 export default function WhyAIconic() {
   return (
-    <section className="relative py-32 md:py-48 px-6 overflow-hidden">
+    <section className="relative py-32 md:py-48 px-6 overflow-hidden transition-colors duration-700" style={{ background: "var(--bg)" }}>
       {/* Background texture */}
       <div
         className="absolute inset-0"
@@ -39,7 +39,8 @@ export default function WhyAIconic() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-[#C8C8C8] text-xs tracking-[0.4em] uppercase mb-10"
+            className="text-xs tracking-[0.4em] uppercase mb-10"
+            style={{ color: "var(--accent)" }}
           >
             Why AIconic
           </motion.p>
@@ -51,22 +52,18 @@ export default function WhyAIconic() {
             transition={{ duration: 1.1, delay: 0.15, ease: EASE }}
           >
             <h2
-              className="text-[clamp(2rem,6vw,5.5rem)] leading-[1.0] tracking-tight text-[#F5F0E8] mb-6"
-              style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 800 }}
+              className="text-[clamp(2rem,6vw,5.5rem)] leading-[1.0] tracking-tight mb-6"
+              style={{
+                fontFamily: "var(--font-playfair), serif",
+                fontWeight: 800,
+                color: "var(--text-primary)",
+              }}
             >
               We don&apos;t create content.
             </h2>
             <h2
               className="text-[clamp(2rem,6vw,5.5rem)] leading-[1.0] tracking-tight"
-              style={{
-                fontFamily: "var(--font-playfair), serif",
-                fontWeight: 800,
-                background:
-                  "linear-gradient(135deg, #C8C8C8 0%, #E8E8E8 50%, #C8C8C8 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
+              style={{ fontFamily: "var(--font-playfair), serif", fontWeight: 800, color: "var(--accent)" }}
             >
               We engineer perception.
             </h2>
@@ -88,12 +85,15 @@ export default function WhyAIconic() {
               }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-5 h-px bg-[#C8C8C8]" />
-                <span className="text-[#C8C8C8] text-xs tracking-[0.3em] uppercase font-light">
+                <div className="w-5 h-px" style={{ background: "var(--accent)" }} />
+                <span
+                  className="text-xs tracking-[0.3em] uppercase font-light"
+                  style={{ color: "var(--accent)" }}
+                >
                   {s.label}
                 </span>
               </div>
-              <p className="text-[#6B6A5E] text-sm leading-relaxed font-light">
+              <p className="text-sm leading-relaxed font-light" style={{ color: "var(--text-secondary)" }}>
                 {s.body}
               </p>
             </motion.div>
